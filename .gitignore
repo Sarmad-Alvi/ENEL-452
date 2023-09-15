@@ -56,3 +56,4 @@ DebugConfig/
 RTE/
 *.uvoptx
 *.uvprojx
+*.sarma
