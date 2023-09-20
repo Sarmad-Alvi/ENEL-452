@@ -5,6 +5,13 @@
 #include <string.h>
 #include <ctype.h>
 
+void get_nums(char *operation, double *arguments, char *buffer);
+void print_reults(double *results);
+void complex_add(double *arguments, double *result);
+void complex_subtract(double *arguments, double *result);
+void complex_multiply(double *arguments, double *result);
+void complex_divide(double *arguments, double *result);
+
 int main(int argc, char **argv)
 {
     fprintf(stderr, "Complex Calculator\n\n");
@@ -14,76 +21,171 @@ int main(int argc, char **argv)
     fprintf(stderr, "Enter exp: ");
 
     int c = 0;
-    char *line;
+    double args[5];
+    double *arguments = args;
+    double answer[2];
+    double *results = answer;
+    char buffer[512];
+    char operation;
 
     while ((c = fgetc(stdin)) != EOF)
-    {
-        if (c == 'A' || c == 'a')
+    {   
+        if (c == '\n')
         {
-            char buffer[24];
+            get_nums(&operation, arguments, buffer);
+
+            if (operation == 'A' || operation == 'a')
+            {
+                complex_add(arguments, results);
+            }
+            else if (operation == 'S' || operation == 's')
+            {
+                complex_subtract(arguments, results);
+            }
+            else if (operation == 'M' || operation == 'm')
+            {
+                complex_multiply(arguments, results);
+            }
+            else if (operation == 'D' || operation == 'd')
+            {
+                complex_divide(arguments, results);
+            }
+            else if (operation == 'Q' || operation == 'q')
+            {
+                break;
+            }
+            else
+            {
+                errno = 1;
+            }
+
             buffer[0] = '\0';
-            int arguments[4];
-            int d = 0;
-            int arg_counter = 0;
-            int null_tracker = 0;
-            while ((d = fgetc(stdin)) != EOF)
-            {
-                if (arg_counter > 3)
-                {
-                    printf("error, too many arguments %d \n", arg_counter + 1);
-                    while ((d = fgetc(stdin)) != EOF) {}
-                    break;
-                }
 
-                if ((d == ' ' && strlen(buffer) != 0) || d == 10)
-                {
-                    null_tracker = 0;
-                    arguments[arg_counter] = atoi(buffer);
-                    printf("%d \n", arguments[arg_counter]);
-                    memset(buffer, 0, 24);
-                    arg_counter++;
-                    if (d == 10)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    char a = (char) d;
-                    strncat(buffer, &a, 1);
-                }
-            }
-            // for (int i = 0; i < 4; i++)
-            // {
-            //     printf("%d \n", arguments[i]);
-            // }
-            if (arg_counter < 4)
-            {
-                printf("too few arguments");
-            }
+            print_reults(results);
+        }
+        // else if (c == ' ')
+        // {
+        //     char white_space = ' ';
+        //     strncat(buffer, &white_space, 1);
+        //     while ((c == ' '))
+        //     {
+        //         c = fgetc(stdin);
+                
+        //         if (c == '\n')
+        //         {
+        //             goto newline;
+        //         }
+        //     }
+        //     char a = (char) c;
+        //     strncat(buffer, &a, 1);
+        // }
+        else
+        {
+            char a = (char) c;
+            strncat(buffer, &a, 1);
+        }
         
-        }
-        else if (c == 'S' || c == 's')
-        {
-
-        }
-        else if (c == 'M' || c == 'm')
-        {
-
-        }
-        else if (c == 'D' || c == 'd')
-        {
-
-        }
-        else if (c == 'Q' || c == 'q')
-        {
-            break;
-        }
-        else if (c != ' ')
-        {
-            printf("error invalid arguments \n");
-        }
         
     }
 }
 
+void get_nums(char *operation, double *arguments, char *buffer)
+{
+
+    int d = 0;
+    // d = sscanf(buffer, "%c", operation); 
+    // if (d != 1)
+    // {
+    //     errno = 1;
+    //     return;
+    // }
+    d = sscanf(buffer, " %c %lf %lf %lf %lf %lf ", operation, &arguments[0], &arguments[1], &arguments[2], &arguments[3], &arguments[4]);
+    if (d < 5)
+    {
+        errno = 2;
+        return;
+    }
+    else if (d > 5)
+    {
+        errno = 3;
+        return;
+    }
+}
+
+void complex_add(double *arguments, double *result)
+{
+    result[0] = arguments[0] + arguments[2];
+    result[1] = arguments[1] + arguments[3];
+
+    return;
+}
+
+void complex_subtract(double *arguments, double *result)
+{
+    result[0] = arguments[0] - arguments[2];
+    result[1] = arguments[1] - arguments[3];
+
+    return;
+}
+
+void complex_multiply(double *arguments, double *result)
+{
+    result[0] = (arguments[0] * arguments[2]) - (arguments[1] * arguments[3]);
+    result[1] = (arguments[0] * arguments[3]) + (arguments[1] * arguments[2]);
+
+    return;
+}
+
+void complex_divide(double *arguments, double *result)
+{
+    if (arguments[2] == 0 && arguments[3] == 0)
+    {
+        errno = 4;
+        return;
+    }
+    result[0] = ((arguments[0] * arguments[2]) + (arguments[1] * arguments[3])) / ((arguments[2] * arguments[2]) + (arguments[3] * arguments[3]));
+    result[1] = ((arguments[1] * arguments[2]) - (arguments[0] * arguments[3])) / ((arguments[2] * arguments[2]) + (arguments[3] * arguments[3]));
+
+    return;
+}
+
+void print_reults(double *result)
+{
+    if (errno == 0)
+    {
+        if (result[1] < 0)
+        {
+            fprintf(stdout, "%g - j %g \n", result[0], (result[1]) * -1);
+        }
+        else
+        {
+            fprintf(stdout, "%g + j %g \n", result[0], result[1]);
+        }
+    }
+    else
+    {
+        switch (errno)
+        {
+        case 1:
+            fprintf(stdout, "error code: 1: illegal command");
+            break;
+        
+        case 2:
+            fprintf(stdout, "error code: 2: missing arguments");
+            break;
+
+        case 3:
+            fprintf(stdout, "error code: 3: extra arguments");
+            break;
+
+        case 4:
+            fprintf(stdout, "error code: 4: divide by zero");
+            break;
+
+        default:
+            break;
+        } 
+    }
+    errno = 0;
+    fprintf(stderr, "Enter exp: ");
+}
