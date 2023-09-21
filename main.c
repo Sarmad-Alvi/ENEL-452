@@ -41,42 +41,52 @@ int main(int argc, char **argv)
     double answer[2];
     double *results = answer;
     char buffer[512];
+    buffer[0] = '\0';
     char operation;
 
     while ((c = fgetc(stdin)) != EOF)
     {   
         if (c == '\n')
         {
-            get_nums(&operation, arguments, buffer);
-
-            if (operation == 'A' || operation == 'a')
+            char a[512];
+            int check_empty = sscanf(buffer, " %s ", a);
+            if (check_empty == -1 || check_empty == 0)
             {
-                complex_add(arguments, results);
-            }
-            else if (operation == 'S' || operation == 's')
-            {
-                complex_subtract(arguments, results);
-            }
-            else if (operation == 'M' || operation == 'm')
-            {
-                complex_multiply(arguments, results);
-            }
-            else if (operation == 'D' || operation == 'd')
-            {
-                complex_divide(arguments, results);
-            }
-            else if (operation == 'Q' || operation == 'q')
-            {
-                break;
+                // fprintf(stdout, "Enter exp: %s \n", buffer);
             }
             else
             {
-                errno = 1;
+                // fprintf(stdout, "Enter exp: %s \n", buffer);
+                get_nums(&operation, arguments, buffer);
+
+                if (operation == 'A' || operation == 'a')
+                {
+                    complex_add(arguments, results);
+                }
+                else if (operation == 'S' || operation == 's')
+                {
+                    complex_subtract(arguments, results);
+                }
+                else if (operation == 'M' || operation == 'm')
+                {
+                    complex_multiply(arguments, results);
+                }
+                else if (operation == 'D' || operation == 'd')
+                {
+                    complex_divide(arguments, results);
+                }
+                else if (operation == 'Q' || operation == 'q')
+                {
+                    break;
+                }
+                else
+                {
+                    errno = 1;
+                }
+                print_reults(results);
             }
 
             buffer[0] = '\0';
-
-            print_reults(results);
         }
         else
         {
