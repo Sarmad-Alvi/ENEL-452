@@ -6,21 +6,21 @@ CERRORFLAG = -Werror
 
 all: compile clean
 
-complex_calc.o : complex_calc.c
-	$(CC) -c complex_calc.c
+main.o : main.c
+	$(CC) -c main.c
 
-compile: complex_calc.o
-	$(CC) $(CFLAGS) complex_calc.o -o build/complex_calc
+compile: main.o
+	$(CC) $(CFLAGS) main.o -o build/complex_calc
 	
 check: compile
 
 clean: 
-	rm -f *.o complex_calc
+	rm -f *.o main
 
 run: compile clean
-	./build/complex_calc
+	./build/main
 
-error: complex_calc.o
-	$(CC) $(CFLAGS) $(CERRORFLAG) complex_calc.o -o build/complex_calc
+error: main.o
+	$(CC) $(CFLAGS) $(CERRORFLAG) main.o -o build/complex_calc
 
 final: error clean
