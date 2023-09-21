@@ -1,6 +1,7 @@
 #include "pin.h"
 #include "stm32f10x.h"
 #include <stdint.h>
+#include "util.h"
 uint32_t lookup_set(uint8_t a);
 uint32_t lookup_reset(uint8_t a);
 
@@ -27,4 +28,21 @@ void set_pin(struct pin a, uint32_t b)
 			GPIOC->BSRR |= (0x00000001 << (a.pin_num + (b * 16)));
 			break;
 	}
+}
+
+void led_flash(uint32_t delay_time)
+{
+	    while(1){
+				GPIOA->BSRR = NUC_GREEN_ON;
+				delay(delay_time);
+				GPIOA->BSRR = NUC_GREEN_OFF;
+				delay(delay_time);
+			}
+}
+
+void init_led(void)
+{
+	GPIOA->CRH |= GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10;
+    GPIOA->CRL |= GPIO_CRL_MODE7;
+		GPIOA->CRL &= 0xFFFFFFF0;
 }

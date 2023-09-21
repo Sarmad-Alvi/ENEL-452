@@ -14,7 +14,10 @@ struct pin
 
 void set_pin(struct pin a, uint32_t b);
 
+void led_flash(uint32_t delay_time);
 
+void init_led(void);
 
-
+#define NUC_GREEN_ON	0X00000020
+#define NUC_GREEN_OFF	0x00200000 
 #endif
