@@ -11,9 +11,7 @@ all: compile clean
 main.o : main.c
 	$(CC) -c main.c
 
-compile: main.o
-	mkdir -p $(MYDIR)
-
+compile: mkdir main.o
 	$(CC) $(CFLAGS) main.o -o build/complex_calc
 	
 check: compile
@@ -24,7 +22,10 @@ clean:
 run: compile clean
 	./build/main
 
-error: main.o
+error: mkdir main.o
 	$(CC) $(CFLAGS) $(CERRORFLAG) main.o -o build/complex_calc
 
 final: error clean
+
+mkdir: 
+	mkdir -p $(MYDIR)
