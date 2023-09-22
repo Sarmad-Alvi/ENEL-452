@@ -13,6 +13,6 @@ int main(void)
 	
 	while(1)
 	{
-		led_flash(3200);
+		led_flash(1200000);
 	}
 }

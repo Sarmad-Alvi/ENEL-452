@@ -99,14 +99,14 @@ void enable_port(char a)
 {
 	if(a == 'A')
 	{
-		RCC->APB2ENR |=  RCC_APB2ENR_IOPAEN;
+		RCC->APB2ENR |=  RCC_APB2ENR_IOPAEN | RCC_APB2ENR_AFIOEN;
 	}
 	else if(a == 'B')
 	{
-		RCC->APB2ENR |=  RCC_APB2ENR_IOPAEN;
+		RCC->APB2ENR |=  RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN;
 	}
 	else if(a == 'C')
 	{
-		RCC->APB2ENR |=  RCC_APB2ENR_IOPAEN;
+		RCC->APB2ENR |=  RCC_APB2ENR_IOPCEN | RCC_APB2ENR_AFIOEN;
 	}
 }

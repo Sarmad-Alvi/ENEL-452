@@ -42,7 +42,6 @@ void led_flash(uint32_t delay_time)
 
 void init_led(void)
 {
-	GPIOA->CRH |= GPIO_CRH_MODE8 | GPIO_CRH_MODE9 | GPIO_CRH_MODE10;
-    GPIOA->CRL |= GPIO_CRL_MODE7;
-		GPIOA->CRL &= 0xFFFFFFF0;
+	GPIOA->CRL |= GPIO_CRL_MODE5;
+	GPIOA->CRL &= ~GPIO_CRL_CNF5;
 }
