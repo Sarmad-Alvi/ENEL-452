@@ -420,6 +420,26 @@
               <FileType>5</FileType>
               <FilePath>.\util.h</FilePath>
             </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\uart.h</FilePath>
+            </File>
+            <File>
+              <FileName>cli.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\cli.c</FilePath>
+            </File>
+            <File>
+              <FileName>cli.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\cli.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
