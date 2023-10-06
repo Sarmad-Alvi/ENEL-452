@@ -40,16 +40,6 @@ void led_flash(uint32_t delay_time)
 			}
 }
 
-void led_on(void)
-{
-	GPIOA->BSRR = NUC_GREEN_ON;
-}
-
-void led_off(void)
-{
-	GPIOA->BSRR = NUC_GREEN_OFF;
-}
-
 void init_led(void)
 {
 	GPIOA->CRL |= GPIO_CRL_MODE5;
