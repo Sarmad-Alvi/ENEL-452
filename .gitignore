@@ -58,6 +58,7 @@
 **/Objects/
 **/*.uvoptx
 **/*.sarma
+**/*.scvd
 =======
 *.mod*
 *.cmd
