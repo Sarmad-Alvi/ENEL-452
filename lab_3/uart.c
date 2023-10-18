@@ -104,9 +104,5 @@ char uart2_receive(void)
 	{
 		TIM2->SR &= ~TIM_SR_UIF;
 	}
-	if (USART2->SR & USART_SR_RXNE)
-	{
-		return USART2->DR;
-	}
 	return USART2->DR;
 }
