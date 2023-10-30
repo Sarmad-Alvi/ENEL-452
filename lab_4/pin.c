@@ -1,3 +1,14 @@
+/**
+* pin.c
+*
+* DESCRIPTION:
+* This file contains the code to turn a pin on
+* or off on the specified port and functions
+* to control the onboard led
+*
+* AUTHOR: Sarmad Alvi 200429983
+*/
+
 #include "pin.h"
 #include "stm32f10x.h"
 #include <stdint.h>

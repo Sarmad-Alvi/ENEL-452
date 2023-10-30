@@ -1,3 +1,16 @@
+/**
+* uart.c
+*
+* DESCRIPTION:
+* This file contains code to initialize uart1 and uart2 on
+* the stm32f103RB, as well as functions to send and receive
+* data through them using both polling and interrupts.
+* 
+* NOTE: BRR needs to changed according to clock frequency and baud rate
+*
+* AUTHOR: Sarmad Alvi 200429983
+*/
+
 #include "stm32f10x.h"
 #include "uart.h"
 
