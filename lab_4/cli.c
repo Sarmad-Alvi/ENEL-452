@@ -1,3 +1,14 @@
+/**
+* cli.c
+*
+* DESCRIPTION:
+* This file contains code to transmit and receive messages over uart.
+* File also contains code to implement a CLI through uart. File contains
+* code for sending and receivng through interrupts and polling.
+*
+* AUTHOR: Sarmad Alvi 200429983
+*/
+
 #include "stm32f10x.h"
 #include "uart.h"
 #include <string.h>
@@ -13,7 +24,7 @@ void CLI_Transmit(uint8_t *pData, uint16_t size_t)
 
 void print_arrow(void)
 {
-	uint8_t buffer[] = "UART:~$ ";
+	uint8_t buffer[] = "\r\nUART:~$ ";
 	CLI_Transmit(buffer,sizeof(buffer));
 }
 
@@ -33,6 +44,7 @@ void CLI_Receive(uint8_t *pData, uint16_t size_t)
 			pData[i] = '\0';
 			break;
 		}
+		// When receiving backspace or delete key
 		else if (received_char == 8 || received_char == 127)
 		{
 			pData[i-1] = NULL;
@@ -136,6 +148,8 @@ void CLI_Interrupt_Receive(uint8_t *pData, uint16_t size_t, int *i)
 	{
 		uart2_send(10);
 		uart2_send(13);
+		uart2_send(10);
+		uart2_send(13);
 		pData[*i] = 13;
 		pData[*i + 1] = 10;
 		parse_command(pData);
@@ -144,16 +158,21 @@ void CLI_Interrupt_Receive(uint8_t *pData, uint16_t size_t, int *i)
 		*i = 0;
 		return;
 	}
-	else if (received_char == 8 || received_char == 127)
+	// When receiving backspace or delete key
+	else if ((received_char == 8 || received_char == 127) && (*i > 0))
 	{
 		pData[*i-1] = NULL;
 		uart2_send(received_char);
 		*i = *i - 2;
 	}
-	else
+	else if (received_char != 8 && received_char != 127)
 	{
 		pData[*i] = received_char;
 		uart2_send(received_char);
+	}
+	else
+	{
+		return;
 	}
 	
 	*i = *i + 1;
