@@ -10,7 +10,6 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
-      <pArmCC>5060960::V5.06 update 7 (build 960)::.\ARMCCv506u6</pArmCC>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCCv506u6</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
@@ -51,11 +50,11 @@
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
           <OutputName>enel_452</OutputName>
-          <CreateExecutable>0</CreateExecutable>
-          <CreateLib>1</CreateLib>
+          <CreateExecutable>1</CreateExecutable>
+          <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
-          <BrowseInformation>0</BrowseInformation>
+          <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>0</HexFormatSelection>
           <Merge32K>0</Merge32K>
@@ -454,6 +453,16 @@
               <FileName>util.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\util.h</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\tasks.c</FilePath>
+            </File>
+            <File>
+              <FileName>tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\tasks.h</FilePath>
             </File>
           </Files>
         </Group>

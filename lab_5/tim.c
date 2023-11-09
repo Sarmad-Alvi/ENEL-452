@@ -58,7 +58,7 @@ void tim3init(void)																				// Configure clocks and IO pins for TIM3 
 	TIM3->ARR = 50; 																				// 10 counts = 1 ms or 1000 Hz, period
 	TIM3->CCR1 = 1; 																				// 50 counts = 5 ms = 50% duty cycle
 	TIM3->DIER |= TIM_DIER_UIE;
-	//NVIC_EnableIRQ(TIM3_IRQn);
+	NVIC_EnableIRQ(TIM3_IRQn);
 	TIM3->CR1 |= TIM_CR1_ARPE | TIM_CR1_CEN; 								// Enable Timer3
 	
 }

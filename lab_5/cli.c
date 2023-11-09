@@ -13,6 +13,10 @@
 #include "uart.h"
 #include <string.h>
 #include "pin.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "tasks.h"
 
 void CLI_Transmit(uint8_t *pData, uint16_t size_t)
 {
@@ -28,38 +32,6 @@ void print_arrow(void)
 	CLI_Transmit(buffer,sizeof(buffer));
 }
 
-void CLI_Receive(uint8_t *pData, uint16_t size_t)
-{
-	print_arrow();
-	for(int i = 0; i < size_t; i++)
-	{
-		char received_char = uart2_receive();
-		
-		
-		// When receiving carriage return or new line, send both carriage return and new line
-		if ((received_char == 13) || (received_char == 10))
-		{
-			uart2_send(10);
-			uart2_send(13);
-			pData[i] = '\0';
-			break;
-		}
-		// When receiving backspace or delete key
-		else if (received_char == 8 || received_char == 127)
-		{
-			pData[i-1] = NULL;
-			uart2_send(received_char);
-			i = i - 2;
-		}
-		else
-		{
-			pData[i] = received_char;
-			uart2_send(received_char);
-		}
-		
-	}
-}
-
 void parse_command(uint8_t *pData)
 {
 	if (!strncmp((char*)pData, "help\r\n", 6))
@@ -68,7 +40,7 @@ void parse_command(uint8_t *pData)
 led_on - turns on green led on the microcontroller\r\n\
 led_off - turns off green led on microcontroller\r\n\
 led_status - displays the status of the green led on the microcontroller \r\n\
-clear - clears screen\r\n";
+set_speed_[50/200] - sets the speed of the flashing green LED to the selected speed \r\nclear - clears screen\r\n";
 		CLI_Transmit(buffer, sizeof(buffer));
 	}
 	else if (!strncmp((char*)pData, "led_on\r\n", 8))
@@ -114,29 +86,59 @@ clear - clears screen\r\n";
 		uint8_t buffer5[] = "\033[7;0r\033[6d--------------------------------\n\r";
 		CLI_Transmit(buffer5,sizeof(buffer5));
 	}
-	else if (!strncmp((char*)pData, "update\r\n", 7))
+	else if (!strncmp((char*)pData, "set_speed_200\r\n", 12))
 	{
-		uint8_t buffer2[] = "\0337\033[0d\033[KLed Status: ";
-		CLI_Transmit(buffer2,sizeof(buffer2));
-		uint8_t buffer3[] = "On";
-		uint8_t buffer4[] = "Off";
-		if(GPIOA->IDR & NUC_GREEN_ON)
-		{
-			CLI_Transmit(buffer3,sizeof(buffer3));
-		}
-		else
-		{
-			CLI_Transmit(buffer4,sizeof(buffer4));
-		}
-		
-		uint8_t buffer5[] = "\0338";
-		CLI_Transmit(buffer5,sizeof(buffer5));
+		int speed = 200;
+		Blinky_Queue_Enqueue(speed);
+		uint8_t buffer[] = "The LED speed is now 200\r\n";
+		CLI_Transmit(buffer,sizeof(buffer));
+	}
+	else if (!strncmp((char*)pData, "set_speed_50\r\n", 11))
+	{
+		int speed = 50;
+		Blinky_Queue_Enqueue(speed);
+		uint8_t buffer[] = "The LED speed is now 50\r\n";
+		CLI_Transmit(buffer,sizeof(buffer));
 	}
 	else
 	{
 		uint8_t buffer[] = "Invalid command \r\n";
 		CLI_Transmit(buffer,sizeof(buffer));
 	}
+}
+
+void CLI_Receive(uint8_t *pData, uint16_t *size_t)
+{
+	char received_char = uart2_receive();
+		
+		
+	// When receiving carriage return or new line, send both carriage return and new line
+	if ((received_char == 13) || (received_char == 10))
+	{
+		uart2_send(10);
+		uart2_send(13);
+		pData[*size_t] = '\0';
+		pData[*size_t] = 13;
+		pData[*size_t + 1] = 10;
+		parse_command(pData);
+		pData[0] = '\0';
+		print_arrow();
+		*size_t = 0;
+	}
+	// When receiving backspace or delete key
+	else if (received_char == 8 || received_char == 127)
+	{
+		pData[*size_t-1] = NULL;
+		uart2_send(received_char);
+		*size_t = *size_t - 2;
+	}
+	else
+	{
+		pData[*size_t] = received_char;
+		uart2_send(received_char);
+	}
+		
+
 }
 
 void CLI_Interrupt_Receive(uint8_t *pData, uint16_t size_t, int *i)
