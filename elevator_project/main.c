@@ -23,6 +23,8 @@
 #include "queue.h"
 #include <stdio.h>
 #include "interrupt.h"
+#include "systick.h"
+#include "queues.h"
 
 int main(void)
 {
@@ -63,30 +65,57 @@ void USART2_IRQHandler(void) {
 	
 }
 
+// TIM3 interrupt which updates the status window
 void TIM3_IRQHandler(void) {
-	uint8_t floor_selection = Floor_Selection_Queue_Peek();
+	uint8_t floor_selection = Floor_Selection_Queue_Peek(); // get dipswitch positions
 	
-	NVIC_DisableIRQ(TIM2_IRQn);
-	uint8_t led_status_buffer[] = "\033[8m\033[?25l\0337\033[0;0H\033[KLed Status: ";
-	CLI_Transmit(led_status_buffer,sizeof(led_status_buffer));
-	uint8_t buffer3[] = "On";
-	uint8_t buffer4[] = "Off";
-	if(GPIOA->IDR & NUC_GREEN_ON)
+	uint8_t buffer7[] = "\033[8m\033[?25l\0337\033[0;0H\033[K"; //set status window
+	CLI_Transmit(buffer7,sizeof(buffer7));
+	
+	
+	// Prints current elevator parameters, location, direction, dipswitch position, and the queues
+	uint8_t current_floor_buffer[22];	
+	uint16_t current_location = Current_Floor_Peek();
+	sprintf((char*)current_floor_buffer, "Elevator Location: %d ", current_location);
+	CLI_Transmit(current_floor_buffer, sizeof(current_floor_buffer));
+	
+	uint8_t elevator_direction = Elevator_Direction_Peek();
+	
+	if(elevator_direction == UP)
 	{
-		CLI_Transmit(buffer3,sizeof(buffer3));
+		uint8_t direction_buffer[] = "\033[2;0H\033[KElevator Direction: UP";
+		CLI_Transmit(direction_buffer, sizeof(direction_buffer));
 	}
 	else
 	{
-		CLI_Transmit(buffer4,sizeof(buffer4));
+		uint8_t direction_buffer[] = "\033[2;0H\033[KElevator Direction: DOWN";
+		CLI_Transmit(direction_buffer, sizeof(direction_buffer));
+	}
+	
+	volatile uint16_t go_queue = Go_Queue_Peek();
+	
+	uint8_t go_queue_buffer[] = "\033[3;0H\033[KGo Queue: ";
+	CLI_Transmit(go_queue_buffer, sizeof(go_queue_buffer));
+	
+	for (int i = 0; i < 16; i++)
+	{
+		if (((go_queue >> i) & 0x1) == 0x1)
+		{
+			uint8_t queue_buffer[4];
+			sprintf((char*)queue_buffer, " %d,  ", i);
+			CLI_Transmit(queue_buffer, sizeof(queue_buffer));
+		}
+	
 	}
 	
 	uint8_t floor_buffer[29];
-	uint8_t call_queue_buffer[] = "\033[3;0H\033[KCall Queue: ";
-	sprintf((char*)floor_buffer, "\033[2;0H\033[KFloor Selection: %d  ", floor_selection);
+	
+	sprintf((char*)floor_buffer, "\033[4;0H\033[KFloor Selection: %d  ", floor_selection);
 	CLI_Transmit(floor_buffer, sizeof(floor_buffer));
+	
+	uint8_t call_queue_buffer[] = "\033[5;0H\033[KCall Queue: ";
 	CLI_Transmit(call_queue_buffer, sizeof(call_queue_buffer));
-	uint8_t floor = Call_Queue_Dequeue();
-
+	
 	volatile uint16_t call_queue = Call_Queue_Peek();
 	for (int i = 0; i < 16; i++)
 	{
@@ -102,9 +131,9 @@ void TIM3_IRQHandler(void) {
 	uint8_t buffer5[] = "\033[0m\033[?25h\0338";
 	CLI_Transmit(buffer5,sizeof(buffer5));
 	TIM3->SR &= ~(0x01);
-	NVIC_EnableIRQ(TIM2_IRQn);
 }
 
+// External button interrupt (Pin C4) to add the floor currently selected by the dipswitch to the elevator queue
 void EXTI1_IRQHandler(void) {
 	EXTI->IMR &= ~EXTI_IMR_MR1;
 	NVIC_DisableIRQ(TIM2_IRQn);
@@ -112,13 +141,11 @@ void EXTI1_IRQHandler(void) {
 	uint16_t floor_selection = Floor_Selection_Queue_Peek();
 	uint16_t last_floor_selection = Last_Floor_Selection_Queue_Peek();
 	
-	if (floor_selection != last_floor_selection)
-	{
-		Last_Floor_Selection_Overwrite(floor_selection);
-		uint16_t call_queue = Call_Queue_Peek();
-		call_queue = call_queue | (0x1 << floor_selection);
-		Call_Queue_Overwrite(call_queue);
-	}
+
+	Last_Floor_Selection_Overwrite(floor_selection);
+	uint16_t call_queue = Call_Queue_Peek();
+	call_queue = call_queue | (0x1 << floor_selection);
+	Call_Queue_Overwrite(call_queue);
 	
 	NVIC_EnableIRQ(TIM2_IRQn);
 	EXTI->IMR |= EXTI_IMR_MR1;

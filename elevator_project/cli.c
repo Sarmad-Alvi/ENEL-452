@@ -40,7 +40,7 @@ void parse_command(uint8_t *pData)
 led_on - turns on green led on the microcontroller\r\n\
 led_off - turns off green led on microcontroller\r\n\
 led_status - displays the status of the green led on the microcontroller \r\n\
-set_speed_[50/200] - sets the speed of the flashing green LED to the selected speed \r\nclear - clears screen\r\n";
+elevator_go_x - Adds floor x to the elevator go queue (0-15) \r\nclear - clears screen\r\n";
 		CLI_Transmit(buffer, sizeof(buffer));
 	}
 	else if (!strncmp((char*)pData, "led_on\r\n", 8))
@@ -86,19 +86,43 @@ set_speed_[50/200] - sets the speed of the flashing green LED to the selected sp
 		uint8_t buffer5[] = "\033[7;0r\033[6d--------------------------------\n\r";
 		CLI_Transmit(buffer5,sizeof(buffer5));
 	}
-	else if (!strncmp((char*)pData, "set_speed_200\r\n", 12))
+	else if (!strncmp((char*)pData, "set_speed_", 10))
 	{
-		int speed = 200;
+		int speed;
+		sscanf((char*)pData, "set_speed_%d", &speed);
 		xQueueOverwrite(xBlinky_Speed, &speed);
-		uint8_t buffer[] = "The LED speed is now 200\r\n";
+		uint8_t buffer[28];
+		sprintf((char*)buffer, "The LED speed is now %d\r\n", speed);
 		CLI_Transmit(buffer,sizeof(buffer));
 	}
-	else if (!strncmp((char*)pData, "set_speed_50\r\n", 11))
+	else if (!strncmp((char*)pData, "elevator_go_",12))
 	{
-		int speed = 50;
-		xQueueOverwrite(xBlinky_Speed, &speed);
-		uint8_t buffer[] = "The LED speed is now 50\r\n";
-		CLI_Transmit(buffer,sizeof(buffer));
+		uint16_t num;
+		uint16_t current_location = Current_Floor_Peek();
+		int a = sscanf((char*)pData, "elevator_go_%hu", &num);
+		
+		if (a != 1)
+		{
+			uint8_t buffer[] = "Invalid command \r\n";
+			CLI_Transmit(buffer,sizeof(buffer));
+		}
+		else if (num > 15)
+		{
+			uint8_t buffer[] = "Invalid command, floor must be between 0-15\r\n";
+			CLI_Transmit(buffer,sizeof(buffer));
+		}
+		else if(current_location != num)
+		{
+			uint16_t go = Go_Queue_Peek();
+			Go_Queue_Overwrite((0x1 << num) | go);
+			uint8_t buffer[] = "Floor Added to queue \r\n";
+			CLI_Transmit(buffer,sizeof(buffer));
+		}
+		else
+		{
+			uint8_t buffer[] = "Elevator already at specified floor \r\n";
+			CLI_Transmit(buffer,sizeof(buffer));
+		}
 	}
 	else
 	{

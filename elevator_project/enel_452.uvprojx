@@ -421,11 +421,6 @@
               <FilePath>.\pin.h</FilePath>
             </File>
             <File>
-              <FileName>task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\task.c</FilePath>
-            </File>
-            <File>
               <FileName>tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\tim.c</FilePath>
@@ -474,6 +469,26 @@
               <FileName>interrupt.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\interrupt.h</FilePath>
+            </File>
+            <File>
+              <FileName>systick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\systick.c</FilePath>
+            </File>
+            <File>
+              <FileName>systick.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\systick.h</FilePath>
+            </File>
+            <File>
+              <FileName>queues.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\queues.c</FilePath>
+            </File>
+            <File>
+              <FileName>queues.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\queues.h</FilePath>
             </File>
           </Files>
         </Group>
